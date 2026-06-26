@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Modern Calculator</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f172a,#1e3a8a,#2563eb);
+    overflow:hidden;
+}
+
+.calculator{
+    width:370px;
+    max-width:95%;
+    padding:25px;
+    border-radius:25px;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(15px);
+    box-shadow:0 15px 40px rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.15);
+}
+
+h1{
+    text-align:center;
+    color:#fff;
+    margin-bottom:20px;
+    font-size:30px;
+}
+
+.display{
+    width:100%;
+    height:75px;
+    margin-bottom:20px;
+    border:none;
+    border-radius:15px;
+    padding:15px;
+    background:rgba(255,255,255,.18);
+    color:#fff;
+    text-align:right;
+    font-size:32px;
+    outline:none;
+    box-shadow:inset 0 5px 10px rgba(0,0,0,.2);
+}
+
+.buttons{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+}
+
+button{
+    height:65px;
+    border:none;
+    border-radius:15px;
+    font-size:22px;
+    cursor:pointer;
+    transition:.25s;
+    font-weight:bold;
+}
+
+button:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 15px rgba(0,0,0,.25);
+}
+
+.number{
+    background:#ffffff;
+    color:#222;
+}
+
+.operator{
+    background:#2563eb;
+    color:white;
+}
+
+.equal{
+    background:#16a34a;
+    color:white;
+}
+
+.clear{
+    background:#dc2626;
+    color:white;
+}
+
+.delete{
+    background:#f59e0b;
+    color:white;
+}
+
+.zero{
+    grid-column:span 2;
+}
+
+@media(max-width:480px){
+
+.calculator{
+    width:95%;
+}
+
+button{
+    height:58px;
+    font-size:20px;
+}
+
+.display{
+    font-size:28px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="calculator">
+
+<h1>🧮 Calculator</h1>
+
+<input
+type="text"
+class="display"
+id="display"
+placeholder="0"
+readonly>
+
+<div class="buttons"><!-- Row 1 -->
+<button class="clear" data-value="C">C</button>
+<button class="delete" data-value="DEL">⌫</button>
+<button class="operator" data-value="%">%</button>
+<button class="operator" data-value="/">÷</button>
+
+<!-- Row 2 -->
+<button class="number" data-value="7">7</button>
+<button class="number" data-value="8">8</button>
+<button class="number" data-value="9">9</button>
+<button class="operator" data-value="*">×</button>
+
+<!-- Row 3 -->
+<button class="number" data-value="4">4</button>
+<button class="number" data-value="5">5</button>
+<button class="number" data-value="6">6</button>
+<button class="operator" data-value="-">−</button>
+
+<!-- Row 4 -->
+<button class="number" data-value="1">1</button>
+<button class="number" data-value="2">2</button>
+<button class="number" data-value="3">3</button>
+<button class="operator" data-value="+">+</button>
+
+<!-- Row 5 -->
+<button class="number zero" data-value="0">0</button>
+<button class="number" data-value=".">.</button>
+<button class="equal" data-value="=">=</button>
+
+</div>
+
+</div>
+
+<script>
+
+// Select Display
+const display = document.getElementById("display");
+
+// Select All Buttons
+const buttons = document.querySelectorAll("button");
+
+// Store Current Expression
+let expression = "";
+// Add Click Event to Every Button
+buttons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        const value = button.dataset.value;
+
+        // Clear Display
+        if (value === "C") {
+
+            expression = "";
+            display.value = "";
+
+        }
+
+        // Delete Last Character
+        else if (value === "DEL") {
+
+            expression = expression.slice(0, -1);
+            display.value = expression;
+
+        }
+
+        // Calculate Result
+        else if (value === "=") {
+
+            calculateResult();
+
+        }
+
+        // Append Value
+        else {
+
+            expression += value;
+            display.value = expression;
+
+        }
+
+    });
+
+});
+
+
+// Function to Calculate Result
+function calculateResult() {
+
+    if (expression === "") return;
+
+    try {
+
+        // Prevent divide by zero
+        if (expression.includes("/0")) {
+            throw new Error("Division by zero");
+        }
+
+        const result = eval(expression);
+
+        if (!isFinite(result)) {
+            throw new Error("Math Error");
+        }
+
+        expression = result.toString();
+
+        display.value = expression;
+
+    }
+
+    catch (error) {
+
+        display.value = "Error";
+
+        expression = "";
+
+        // Clear Error After 1.5 Seconds
+        setTimeout(() => {
+
+            display.value = "";
+
+        }, 1500);
+
+    }
+
+}// ===============================
+// Keyboard Input Support
+// ===============================
+
+document.addEventListener("keydown", (event) => {
+
+    const key = event.key;
+
+    // Numbers
+    if (!isNaN(key)) {
+        expression += key;
+        display.value = expression;
+        return;
+    }
+
+    // Decimal Point
+    if (key === ".") {
+        expression += ".";
+        display.value = expression;
+        return;
+    }
+
+    // Operators
+    if (["+", "-", "*", "/", "%"].includes(key)) {
+
+        // Prevent two operators together
+        if (
+            expression === "" ||
+            ["+", "-", "*", "/", "%"].includes(expression.slice(-1))
+        ) {
+            return;
+        }
+
+        expression += key;
+        display.value = expression;
+        return;
+    }
+
+    // Enter Key (=)
+    if (key === "Enter") {
+        event.preventDefault();
+        calculateResult();
+        return;
+    }
+
+    // Backspace
+    if (key === "Backspace") {
+        expression = expression.slice(0, -1);
+        display.value = expression;
+        return;
+    }
+
+    // Escape = Clear
+    if (key === "Escape") {
+        expression = "";
+        display.value = "";
+        return;
+    }
+
+});
+
+
+// ===============================
+// Better Input Validation
+// ===============================
+
+// Prevent multiple operators
+function isOperator(char) {
+    return ["+", "-", "*", "/", "%"].includes(char);
+}
+
+// Override Button Click Validation
+buttons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        const value = button.dataset.value;
+
+        // Skip validation for special buttons
+        if (["=", "C", "DEL"].includes(value)) return;
+
+        // Prevent two operators together
+        if (isOperator(value) && isOperator(expression.slice(-1))) {
+            return;
+        }
+
+        // Prevent starting with invalid operator
+        if (
+            expression === "" &&
+            ["*", "/", "%"].includes(value)
+        ) {
+            return;
+        }
+
+    });
+
+});
+
+
+// ===============================
+// Display Animation
+// ===============================
+
+function animateDisplay(){
+
+    display.style.transform = "scale(1.03)";
+    display.style.transition = "0.15s";
+
+    setTimeout(()=>{
+
+        display.style.transform = "scale(1)";
+
+    },150);
+
+}
+
+
+// Override Calculate Function
+const oldCalculate = calculateResult;
+
+calculateResult = function(){
+
+    oldCalculate();
+
+    animateDisplay();
+
+};// ======================================
+// Premium UI Enhancements
+// ======================================
+
+// Add Ripple Animation to Buttons
+buttons.forEach(button => {
+
+    button.addEventListener("click", function(e) {
+
+        const ripple = document.createElement("span");
+
+        ripple.classList.add("ripple");
+
+        const rect = this.getBoundingClientRect();
+
+        ripple.style.left = (e.clientX - rect.left) + "px";
+        ripple.style.top = (e.clientY - rect.top) + "px";
+
+        this.appendChild(ripple);
+
+        setTimeout(() => {
+            ripple.remove();
+        }, 500);
+
+    });
+
+});
+
+
+// ======================================
+// Create Dark/Light Mode Button
+// ======================================
+
+const themeBtn = document.createElement("button");
+
+themeBtn.innerHTML = "🌙";
+
+themeBtn.style.position = "fixed";
+themeBtn.style.top = "20px";
+themeBtn.style.right = "20px";
+themeBtn.style.width = "55px";
+themeBtn.style.height = "55px";
+themeBtn.style.borderRadius = "50%";
+themeBtn.style.border = "none";
+themeBtn.style.fontSize = "22px";
+themeBtn.style.cursor = "pointer";
+themeBtn.style.background = "#ffffff";
+themeBtn.style.boxShadow = "0 10px 20px rgba(0,0,0,.25)";
+themeBtn.style.zIndex = "1000";
+
+document.body.appendChild(themeBtn);
+
+
+// Toggle Theme
+let darkMode = true;
+
+themeBtn.addEventListener("click", () => {
+
+    darkMode = !darkMode;
+
+    if (darkMode) {
+
+        document.body.style.background =
+        "linear-gradient(135deg,#0f172a,#1e3a8a,#2563eb)";
+
+        themeBtn.innerHTML = "🌙";
+
+    } else {
+
+        document.body.style.background =
+        "linear-gradient(135deg,#f8fafc,#dbeafe,#bfdbfe)";
+
+        themeBtn.innerHTML = "☀️";
+
+    }
+
+});
+
+
+// ======================================
+// Welcome Animation
+// ======================================
+
+const calculator = document.querySelector(".calculator");
+
+calculator.style.opacity = "0";
+calculator.style.transform = "translateY(40px)";
+
+setTimeout(() => {
+
+    calculator.style.transition = "0.8s";
+
+    calculator.style.opacity = "1";
+
+    calculator.style.transform = "translateY(0)";
+
+}, 100);
+
+
+// ======================================
+// Console Message
+// ======================================
+
+console.log("Modern Calculator Loaded Successfully!");
